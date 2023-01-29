@@ -17,14 +17,15 @@ class Queue {
 
   void push(T value);
   T waitAndPop();
+  [[nodiscard]] bool empty() const;
 
  private:
   Node* getTail();
 
   std::unique_ptr<Node> _head;
   Node* _tail;
-  std::mutex _hm;
-  std::mutex _tm;
+  mutable std::mutex _hm;
+  mutable std::mutex _tm;
   std::condition_variable _cv;
 };
 
@@ -47,6 +48,12 @@ T Queue<T>::waitAndPop() {
   auto val = std::move(_head->value);
   _head = std::move(_head->next);
   return val;
+}
+
+template <typename T>
+bool Queue<T>::empty() const {
+  std::scoped_lock lock(_hm, _tm);
+  return _head.get() == _tail;
 }
 
 template <typename T>
