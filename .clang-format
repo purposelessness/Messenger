@@ -1,3 +1,4 @@
+---
 Language:        Cpp
 BasedOnStyle:  Google
 AccessModifierOffset: -1
@@ -189,7 +190,7 @@ ReferenceAlignment: Pointer
 ReflowComments:  true
 RemoveBracesLLVM: false
 RequiresClausePosition: OwnLine
-SeparateDefinitionBlocks: Always  # Default: Leave
+SeparateDefinitionBlocks: Leave
 ShortNamespaceLines: 1
 SortIncludes:    CaseSensitive
 SortJavaStaticImport: Before
