@@ -31,7 +31,7 @@ class Queue {
 
 template <typename T>
 void Queue<T>::push(T value) {
-  std::unique_ptr<Node> node{};
+  std::unique_ptr<Node> node = std::make_unique<Node>();
   {
     std::scoped_lock lock(_tm);
     _tail->value = std::move(value);
