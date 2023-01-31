@@ -1,15 +1,34 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 option java_multiple_files = true;
-option java_package = "io.grpc.examples.helloworld";
-option java_outer_classname = "HelloWorldProto";
-option objc_class_prefix = "HLW";
+option java_package = "io.grpc.examples.messenger";
+option java_outer_classname = "MessengerProto";
+option objc_class_prefix = "MSG";
 
 package messenger;
 
 service Greeter {
   rpc SayHello (HelloRequest) returns (HelloReply) {}
   rpc SayHelloStreamReply (HelloRequest) returns (stream HelloReply) {}
+}
+
+service Messenger {
+  rpc Authenticate (ValidationRequest) returns (google.protobuf.Empty) {}
+  rpc SendMessages (stream Message) returns (google.protobuf.Empty) {}
+  rpc AcceptMessages (google.protobuf.Empty) returns (stream Message) {}
+}
+
+message ValidationRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message Message {
+  string sender = 1;
+  string receiver = 2;
+  string data = 3;
 }
 
 message HelloRequest {
