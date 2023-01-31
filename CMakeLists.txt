@@ -42,7 +42,7 @@ target_link_libraries(ms_grpc_proto
 
 # Targets
 foreach(_target
-  greeter_client)
+  messenger_server)
   add_executable(${_target} "${_target}.cc")
   target_link_libraries(${_target}
     ms_grpc_proto
