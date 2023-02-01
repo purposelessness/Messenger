@@ -40,19 +40,25 @@ target_link_libraries(ms_grpc_proto
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF})
 
-add_executable(messenger_server messenger_server.cc)
+set(server_dir "server/")
+set(server_src messenger_server.cc)
+list(APPEND server_list ${server_src})
+list(TRANSFORM server_list PREPEND ${server_dir})
+add_executable(server ${server_list})
 
-add_executable(client main.cc message.cc interface/interface_service.cc net/net_service.cc)
+set(client_dir "client/")
+set(client_src messenger_client.cc message.cc interface/interface_service.cc net/net_service.cc)
+list(APPEND client_list ${client_src})
+list(TRANSFORM client_list PREPEND ${client_dir})
+add_executable(client ${client_list})
 
 # Targets
 foreach(_target
-  messenger_server client)
+  server client)
   target_link_libraries(${_target}
     ms_grpc_proto
     ${_REFLECTION}
     ${_GRPC_GRPCPP}
     ${_PROTOBUF_LIBPROTOBUF})
 endforeach()
-
-# add_executable(Messenger main.cc queue.h net/net_service.cc net/net_service.h message.cc message.h message_visitor.h interface/interface_service.cc interface/interface_service.h)
 
