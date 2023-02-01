@@ -68,7 +68,9 @@ void InterfaceService::Visit(const ChatMessage& message) {
   std::cout << "New message:\n" << message.data << '\n';
 }
 
-void InterfaceService::Visit(const QuitMessage& message) { Quit(); }
+void InterfaceService::Visit([[maybe_unused]] const QuitMessage& message) {
+  Quit();
+}
 
 void InterfaceService::SetOutputBus(Bus* out_bus) { out_bus_ = out_bus; }
 

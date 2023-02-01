@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-NetService::NetService(std::shared_ptr<grpc::Channel> channel)
+NetService::NetService(const std::shared_ptr<grpc::Channel>& channel)
     : stub_(messenger::Messenger::NewStub(channel)) {}
 
 void NetService::Run() {

@@ -12,7 +12,7 @@ class NetService : public MessageVisitor {
   using Bus = Queue<std::unique_ptr<Message>>;
 
  public:
-  NetService(std::shared_ptr<grpc::Channel> channel);
+  explicit NetService(const std::shared_ptr<grpc::Channel>& channel);
 
   void Run();
 
