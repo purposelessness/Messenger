@@ -13,43 +13,45 @@ using google::protobuf::Empty;
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
-using grpc::ServerReader;
-using grpc::ServerWriter;
 using grpc::Status;
 using messenger::Message;
 using messenger::Messenger;
-using messenger::ValidationRequest;
 
 class MessengerServiceImpl final : public Messenger::Service {
  public:
-  Status Authenticate(ServerContext* context, const ValidationRequest* request,
-                      Empty* response) override {
+  Status LogIn([[maybe_unused]] ServerContext* context,
+               const messenger::LogInRequest* request,
+               [[maybe_unused]] Empty* response) override {
+    std::cout << "LogIn request\nLogin: " << request->login()
+              << "\nPassword: " << request->password() << "\n";
     if (!request->login().empty() && !request->password().empty()) {
+      std::cout << "Valid credentials\n";
       return Status::OK;
     }
+    std::cout << "Invalid credentials\n";
     Status status(grpc::UNAUTHENTICATED, "Invalid login/password");
     return status;
   }
 
-  Status SendMessages(ServerContext* context, ServerReader<Message>* reader,
-                      Empty* response) override {
-    std::jthread reader_thread([reader] {
-      Message message;
-      std::cout << "Server: Opened message stream (thread "
-                << std::this_thread::get_id() << ")" << std::endl;
-      while (reader->Read(&message)) {
-        std::cout << "Sender: " << message.sender()
-                  << "\nReceiver: " << message.receiver() << "\n\t"
-                  << message.data() << std::endl;
-      }
-      std::cout << "Server: Message stream closed" << std::endl;
-    });
-
+  Status LogOut([[maybe_unused]] ServerContext* context,
+                const messenger::LogOutRequest* request,
+                [[maybe_unused]] Empty* responce) override {
+    std::cout << "LogOut request:\nLogin: " << request->login() << '\n';
     return Status::OK;
   }
 
-  Status AcceptMessages(ServerContext* context, const Empty* request,
-                        ServerWriter<Message>* writer) override {
+  Status OpenMessageStream(
+      [[maybe_unused]] ServerContext* context,
+      grpc::ServerReaderWriter<Message, Message>* stream) override {
+    std::cout << "Message stream opened.\n";
+    auto read_thread = std::jthread([stream] {
+      Message msg;
+      while (stream->Read(&msg)) {
+        std::cout << "New message:\nSender: " << msg.sender()
+                  << "\nReceiver: " << msg.receiver()
+                  << "\nData: " << msg.data() << '\n';
+      }
+    });
     return Status::OK;
   }
 };
@@ -65,7 +67,7 @@ void RunServer() {
   builder.RegisterService(&service);
 
   std::unique_ptr<Server> server(builder.BuildAndStart());
-  std::cout << "Server listening on " << server_address << std::endl;
+  std::cout << "Server listening on " << server_address << '\n';
 
   server->Wait();
 }
