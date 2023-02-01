@@ -5,7 +5,7 @@
 
 #include "../message.h"
 #include "../message_visitor.h"
-#include "../queue.h"
+#include "../threadsafe/queue.h"
 #include "messenger.grpc.pb.h"
 
 class NetService : public MessageVisitor {

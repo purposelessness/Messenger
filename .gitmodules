@@ -1,0 +1,3 @@
+[submodule "threadsafe"]
+	path = threadsafe
+	url = https://github.com/Purposelessness/Threadsafe.git

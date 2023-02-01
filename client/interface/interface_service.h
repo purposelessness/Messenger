@@ -6,7 +6,7 @@
 
 #include "../message.h"
 #include "../message_visitor.h"
-#include "../queue.h"
+#include "../threadsafe/queue.h"
 
 class InterfaceService : public MessageVisitor {
   using Bus = Queue<std::unique_ptr<Message>>;
