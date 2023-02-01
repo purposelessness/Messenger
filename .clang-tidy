@@ -538,10 +538,6 @@ CheckOptions:
     value: k
   - key: readability-identifier-naming.ConstantPrefix
     value: k
-  - key: readability-identifier-naming.PrivateMemberSuffix
-    value: _
-  - key: readability-identifier-naming.PrivateMemberPrefix
-    value: ''
   - key: readability-identifier-naming.FunctionHungarianPrefix
     value: Off
   - key: readability-identifier-naming.FunctionSuffix
@@ -580,12 +576,6 @@ CheckOptions:
     value: ''
   - key: readability-identifier-naming.GetConfigPerFile
     value: 'true'
-  - key: readability-identifier-naming.PrivateMemberHungarianPrefix
-    value: Off
-  - key: readability-identifier-naming.PrivateMemberIgnoredRegexp
-    value: ''
-  - key: readability-identifier-naming.MemberSuffix
-    value: ''
   - key: readability-identifier-naming.StructIgnoredRegexp
     value: ''
   - key: readability-identifier-naming.AggressiveDependentMemberLookup
@@ -606,8 +596,12 @@ CheckOptions:
     value: CamelCase
   - key: readability-identifier-naming.MemberPrefix
     value: ''
-  - key: readability-identifier-naming.ClassSuffix
+  - key: readability-identifier-naming.MemberSuffix
     value: ''
+  - key: readability-identifier-naming.PrivateMemberSuffix
+    value: _
+  - key: readability-identifier-naming.ClassMemberSuffix
+    value: _
   - key: readability-identifier-naming.EnumConstantIgnoredRegexp
     value: ''
   - key: readability-identifier-naming.ParameterPrefix
