@@ -42,7 +42,7 @@ target_link_libraries(ms_grpc_proto
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF})
 
-add_executable(test_db test_db.cc ../database/credentials_db.cc)
+add_executable(test_db test_db.cc ../server/database/credentials_db.cc)
 
 # Targets
 foreach(_target
