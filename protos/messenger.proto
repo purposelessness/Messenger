@@ -9,11 +9,6 @@ option objc_class_prefix = "MSG";
 
 package messenger;
 
-service Greeter {
-  rpc SayHello (HelloRequest) returns (HelloReply) {}
-  rpc SayHelloStreamReply (HelloRequest) returns (stream HelloReply) {}
-}
-
 service Messenger {
   rpc LogIn (LogInRequest) returns (google.protobuf.Empty) {}
   rpc OpenMessageStream (stream Message) returns (stream Message) {}
@@ -27,6 +22,21 @@ message LogInRequest {
 
 message LogOutRequest {
   string login = 1;
+}
+
+message Credentials {
+  string login = 1;
+  string password = 2;
+  uint64 id = 3;
+}
+
+message CredentialBook {
+  repeated Credentials data = 1;
+}
+
+service Greeter {
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  rpc SayHelloStreamReply (HelloRequest) returns (stream HelloReply) {}
 }
 
 message Message {
