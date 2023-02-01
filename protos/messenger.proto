@@ -15,14 +15,18 @@ service Greeter {
 }
 
 service Messenger {
-  rpc Authenticate (ValidationRequest) returns (google.protobuf.Empty) {}
-  rpc SendMessages (stream Message) returns (google.protobuf.Empty) {}
-  rpc AcceptMessages (google.protobuf.Empty) returns (stream Message) {}
+  rpc LogIn (LogInRequest) returns (google.protobuf.Empty) {}
+  rpc OpenMessageStream (stream Message) returns (stream Message) {}
+  rpc LogOut (LogOutRequest) returns (google.protobuf.Empty) {}
 }
 
-message ValidationRequest {
+message LogInRequest {
   string login = 1;
   string password = 2;
+}
+
+message LogOutRequest {
+  string login = 1;
 }
 
 message Message {
