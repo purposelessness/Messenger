@@ -7,9 +7,14 @@
 CredentialsDb::CredentialsDb(std::string filename)
     : filename_(std::move(filename)) {}
 
-void CredentialsDb::LoadData() { data_ = ParseData(filename_); }
+const std::unordered_map<std::string, messenger::Credentials>&
+CredentialsDb::LoadData() {
+  data_ = ParseData(filename_);
+  return data_;
+}
 
 void CredentialsDb::PrintData() const {
+  std::shared_lock lk(m_);
   std::for_each(data_.cbegin(), data_.cend(), [](const auto& p) {
     std::cout << "User " << p.second.id() << "\nLogin: " << p.second.login()
               << "\nPassword: " << p.second.password() << '\n';
@@ -39,12 +44,14 @@ void CredentialsDb::SaveData() const {
 
 CredentialsDb::Responce CredentialsDb::CheckCredentials(
     const std::string& login, const std::string& password) {
+  std::shared_lock lk(m_);
   if (!data_.contains(login)) {
     Responce responce{kInvalidLogin, 0};
     return responce;
   }
 
   auto credentials = data_[login];
+  lk.unlock();
   auto out = credentials.password() == password
                  ? Responce{kOk, credentials.id()}
                  : Responce{kInvalidPassword, 0};
@@ -52,6 +59,7 @@ CredentialsDb::Responce CredentialsDb::CheckCredentials(
 }
 
 CredentialsDb::Responce CredentialsDb::GetUserId(const std::string& login) {
+  std::shared_lock lk(m_);
   auto out = data_.contains(login) ? Responce{kOk, data_[login].id()}
                                    : Responce{kInvalidLogin, 0};
   return out;
@@ -59,6 +67,7 @@ CredentialsDb::Responce CredentialsDb::GetUserId(const std::string& login) {
 
 CredentialsDb::Responce CredentialsDb::AddUser(const std::string& login,
                                                const std::string& password) {
+  std::shared_lock s_lk(m_);
   if (data_.contains(login)) {
     Responce out{kDuplicateLogin, 0};
     return out;
@@ -72,14 +81,25 @@ CredentialsDb::Responce CredentialsDb::AddUser(const std::string& login,
     Responce out{kInvalidPassword, 0};
     return out;
   }
+  s_lk.unlock();
 
   auto entry = Credentials{};
   entry.set_login(login);
   entry.set_password(password);
-  entry.set_id(data_.size());
-  data_[login] = std::move(entry);
-  auto out = Responce{kOk, data_[login].id()};
+  uint64_t id = 0;
+  {
+    std::scoped_lock u_lk(m_);
+    id = data_.size();
+    entry.set_id(id);
+    data_[login] = std::move(entry);
+  }
+  auto out = Responce{kOk, id};
   return out;
+}
+
+void CredentialsDb::RemoveUser(const std::string& login) {
+  std::scoped_lock lk(m_);
+  data_.erase(login);
 }
 
 std::unordered_map<std::string, messenger::Credentials>
