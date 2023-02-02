@@ -1,10 +1,8 @@
-#ifndef MESSENGER_DATABASE_CREDENTIALS_DB_H_
-#define MESSENGER_DATABASE_CREDENTIALS_DB_H_
+#ifndef MESSENGER_SERVER_DATABASE_CREDENTIALS_DB_H_
+#define MESSENGER_SERVER_DATABASE_CREDENTIALS_DB_H_
 
-#include <cstddef>
 #include <exception>
 #include <optional>
-#include <regex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -37,8 +35,6 @@ class CredentialsDb {
   Responce GetUserId(const std::string& login);
 
   Responce AddUser(const std::string& login, const std::string& password);
-  Responce RemoveUser(const std::string& login);
-  Responce RemoveUser(uint64_t id);
 
  private:
   static std::unordered_map<std::string, Credentials> ParseData(
@@ -58,4 +54,4 @@ class CredentialsDbException : public std::exception {
   std::string what_;
 };
 
-#endif  // MESSENGER_DATABASE_CREDENTIALS_DB_H_
+#endif  // MESSENGER_SERVER_DATABASE_CREDENTIALS_DB_H_

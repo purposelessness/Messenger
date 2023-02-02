@@ -1,7 +1,6 @@
-#ifndef MESSENGER_DATABASE_DATABASE_SERVICE_H_
-#define MESSENGER_DATABASE_DATABASE_SERVICE_H_
+#ifndef MESSENGER_SERVER_DATABASE_DATABASE_SERVICE_H_
+#define MESSENGER_SERVER_DATABASE_DATABASE_SERVICE_H_
 
-#include <cstddef>
 #include <optional>
 #include <string>
 
@@ -16,4 +15,4 @@ class DatabaseService {
   std::string credentials_db_name_;
 };
 
-#endif  // MESSENGER_DATABASE_DATABASE_SERVICE_H_
+#endif  // MESSENGER_SERVER_DATABASE_DATABASE_SERVICE_H_
