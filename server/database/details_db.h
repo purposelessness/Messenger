@@ -12,6 +12,7 @@ class DetailsDb {
   void AddId(const std::string& login, uint64_t id);
   void RemoveId(const std::string& login);
   std::optional<uint64_t> GetId(const std::string& login);
+  std::optional<std::string> GetLogin(uint64_t id);
 
   void AddActive(uint64_t id);
   void RemoveActive(uint64_t id);
@@ -20,6 +21,7 @@ class DetailsDb {
  private:
   static constexpr uint64_t kIdDataSize = 100'003;
   Map<std::string, uint64_t> id_data_{kIdDataSize};
+  Map<uint64_t, std::string> login_data_{kIdDataSize};
   Set<uint64_t> active_data_;
 };
 
