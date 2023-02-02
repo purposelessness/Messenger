@@ -24,6 +24,12 @@ message LogOutRequest {
   string login = 1;
 }
 
+message Message {
+  string sender = 1;
+  string receiver = 2;
+  string data = 3;
+}
+
 message Credentials {
   string login = 1;
   string password = 2;
@@ -34,21 +40,17 @@ message CredentialBook {
   repeated Credentials data = 1;
 }
 
-service Greeter {
-  rpc SayHello (HelloRequest) returns (HelloReply) {}
-  rpc SayHelloStreamReply (HelloRequest) returns (stream HelloReply) {}
-}
-
-message Message {
-  string sender = 1;
-  string receiver = 2;
+message MessageDb {
+  uint64 sender = 1;
+  uint64 receiver = 2;
   string data = 3;
 }
 
-message HelloRequest {
-  string name = 1;
+message Chat {
+  uint64 id = 1;
+  repeated MessageDb data = 2;
 }
 
-message HelloReply {
-  string message = 1;
-}
+message ChatBook {
+  repeated Chat data = 1;
+};

@@ -30,9 +30,7 @@ void CredentialsDb::SaveData() const {
   std::for_each(data_.begin(), data_.end(),
                 [&credential_book](const auto& pair) {
                   auto* entry = credential_book.add_data();
-                  entry->set_login(pair.second.login());
-                  entry->set_password(pair.second.password());
-                  entry->set_id(pair.second.id());
+                  *entry = pair.second;
                 });
 
   if (!credential_book.SerializeToOstream(&file)) {
@@ -116,9 +114,10 @@ CredentialsDb::ParseData(const std::string& filename) {
   auto data = credential_book.data();
   std::unordered_map<std::string, Credentials> out;
   out.reserve(data.size());
-  std::for_each(data.begin(), data.end(), [&out](const Credentials& c) {
-    out.insert(std::pair<std::string, Credentials>{c.login(), c});
-  });
+  std::for_each(std::make_move_iterator(data.begin()),
+                std::make_move_iterator(data.end()), [&out](Credentials&& c) {
+                  out.emplace(c.login(), std::move(c));
+                });
 
   google::protobuf::ShutdownProtobufLibrary();
   return out;
