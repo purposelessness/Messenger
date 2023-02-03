@@ -42,7 +42,7 @@ class ChatsDb {
   std::optional<messenger::ChatSummary> GetChatSummary(Id chat_id);
 
   void AddMessage(Id chat_id, const messenger::Message& message);
-  void CreateChat(Id chat_id);
+  Id CreateChat(const std::unordered_set<Id>& users);
   void RemoveChat(Id chat_id);
 
   // Not threadsafe

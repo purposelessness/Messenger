@@ -45,12 +45,21 @@ std::optional<messenger::ChatSummary> ChatsDb::GetChatSummary(Id chat_id) {
   return data_[chat_id].chat.summary();
 }
 
-void ChatsDb::CreateChat(Id chat_id) {
+ChatsDb::Id ChatsDb::CreateChat(const std::unordered_set<Id>& users) {
+  messenger::ChatSummary sum;
+  auto* users_mut = sum.mutable_users();
+  users_mut->Reserve(static_cast<int>(users.size()));
+  std::for_each(users.begin(), users.end(),
+                [users_mut](Id id) { users_mut->Add(id); });
+
   std::unique_lock lk(m_);
-  if (data_.contains(chat_id)) {
-    return;
-  }
-  data_.emplace(chat_id, ChatEntry{});
+  Id new_id = data_.size();
+  messenger::Chat new_chat;
+  sum.set_id(new_id);
+  new_chat.mutable_summary()->Swap(&sum);
+  data_.emplace(new_id, ChatEntry{std::move(new_chat)});
+
+  return new_id;
 }
 
 void ChatsDb::AddMessage(Id chat_id, const messenger::Message& message) {

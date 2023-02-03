@@ -20,6 +20,8 @@ service Messenger {
   rpc GetChats (UserChatsRequest) returns (UserChats) {}
   rpc GetId (google.protobuf.StringValue) returns (google.protobuf.UInt64Value) {}
   rpc GetLogin (google.protobuf.UInt64Value) returns (google.protobuf.StringValue)  {}
+
+  rpc CreateChat (CreateChatRequest) returns (CreateChatResponse) {}
 }
 
 message LogInRequest {
@@ -82,3 +84,10 @@ message ChatBook {
   repeated Chat data = 1;
 };
 
+message CreateChatRequest {
+  repeated uint64 users = 1;
+}
+
+message CreateChatResponse {
+  uint64 chat_id = 1;
+}
