@@ -17,7 +17,7 @@ service Messenger {
   rpc OpenMessageStream (stream Message) returns (stream Message) {}
 
   rpc GetUserSummary (google.protobuf.UInt64Value) returns (UserSummary) {}
-  rpc GetChats (UserChatsRequest) returns (UserChats) {}
+  rpc GetChats (GetChatsRequest) returns (GetChatsResponse) {}
   rpc GetId (google.protobuf.StringValue) returns (google.protobuf.UInt64Value) {}
   rpc GetLogin (google.protobuf.UInt64Value) returns (google.protobuf.StringValue)  {}
 
@@ -33,11 +33,11 @@ message LogInResponce {
   uint64 id = 1;
 }
 
-message UserChatsRequest {
+message GetChatsRequest {
   repeated uint64 chat_ids = 1;
 }
 
-message UserChats {
+message GetChatsResponse {
   repeated ChatSummary chats = 1;
 }
 
