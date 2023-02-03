@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
 
 option java_multiple_files = true;
 option java_package = "io.grpc.examples.messenger";
@@ -10,9 +11,15 @@ option objc_class_prefix = "MSG";
 package messenger;
 
 service Messenger {
-  rpc LogIn (LogInRequest) returns (google.protobuf.Empty) {}
-  rpc OpenMessageStream (stream Message) returns (stream Message) {}
+  rpc SignUp (LogInRequest) returns (LogInResponce) {}
+  rpc LogIn (LogInRequest) returns (LogInResponce) {}
   rpc LogOut (LogOutRequest) returns (google.protobuf.Empty) {}
+  rpc OpenMessageStream (stream Message) returns (stream Message) {}
+
+  rpc GetUserSummary (google.protobuf.UInt64Value) returns (UserSummary) {}
+  rpc GetChats (UserChatsRequest) returns (UserChats) {}
+  rpc GetId (google.protobuf.StringValue) returns (google.protobuf.UInt64Value) {}
+  rpc GetLogin (google.protobuf.UInt64Value) returns (google.protobuf.StringValue)  {}
 }
 
 message LogInRequest {
@@ -20,14 +27,20 @@ message LogInRequest {
   string password = 2;
 }
 
-message LogOutRequest {
-  string login = 1;
+message LogInResponce {
+  uint64 id = 1;
 }
 
-message Message {
-  string sender = 1;
-  string receiver = 2;
-  string data = 3;
+message UserChatsRequest {
+  repeated ChatSummary chats = 1;
+}
+
+message UserChats {
+  repeated ChatSummary chats = 1;
+}
+
+message LogOutRequest {
+  uint64 id = 1;
 }
 
 message Credentials {
@@ -40,17 +53,32 @@ message CredentialBook {
   repeated Credentials data = 1;
 }
 
-message MessageDb {
+message UserSummary {
+  uint64 id = 1;
+  repeated uint64 chat_ids = 2;
+}
+
+message UserSummaryBook {
+  repeated UserSummary data = 1;
+}
+
+message Message {
   uint64 sender = 1;
-  uint64 receiver = 2;
+  uint64 chat_id = 2;
   string data = 3;
 }
 
-message Chat {
+message ChatSummary {
   uint64 id = 1;
-  repeated MessageDb data = 2;
+  repeated uint64 users = 2;
+}
+
+message Chat {
+  ChatSummary summary = 1;
+  repeated Message data = 2;
 }
 
 message ChatBook {
   repeated Chat data = 1;
 };
+
