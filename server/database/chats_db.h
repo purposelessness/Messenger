@@ -38,8 +38,11 @@ class ChatsDb {
   explicit ChatsDb(std::string filename = "chats.data");
 
   std::optional<messenger::Chat> GetChatHistory(Id chat_id, uint64_t depth = 0);
-  std::optional<messenger::MessageDb> GetLastMessage(Id chat_id);
-  void AddMessage(Id chat_id, const messenger::MessageDb& message);
+  std::optional<messenger::Message> GetLastMessage(Id chat_id);
+  std::optional<messenger::ChatSummary> GetChatSummary(Id chat_id);
+
+  void AddMessage(Id chat_id, const messenger::Message& message);
+  void CreateChat(Id chat_id);
   void RemoveChat(Id chat_id);
 
   // Not threadsafe

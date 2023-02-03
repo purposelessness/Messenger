@@ -19,14 +19,14 @@ std::optional<messenger::Chat> ChatsDb::GetChatHistory(Id chat_id,
   auto& chat = data_[chat_id].chat;
   s_lk.unlock();
   std::for_each_n(chat.data().begin(), depth,
-                  [&out](const messenger::MessageDb& msg) {
+                  [&out](const messenger::Message& msg) {
                     auto* new_msg = out.add_data();
                     *new_msg = msg;
                   });
   return out;
 }
 
-std::optional<messenger::MessageDb> ChatsDb::GetLastMessage(Id chat_id) {
+std::optional<messenger::Message> ChatsDb::GetLastMessage(Id chat_id) {
   std::shared_lock s_lk(m_);
   if (!data_.contains(chat_id)) {
     return std::nullopt;
@@ -36,7 +36,24 @@ std::optional<messenger::MessageDb> ChatsDb::GetLastMessage(Id chat_id) {
   return message;
 }
 
-void ChatsDb::AddMessage(Id chat_id, const messenger::MessageDb& message) {
+std::optional<messenger::ChatSummary> ChatsDb::GetChatSummary(Id chat_id) {
+  std::shared_lock s_lk(m_);
+  if (!data_.contains(chat_id)) {
+    return std::nullopt;
+  }
+  std::shared_lock lk(data_[chat_id].m);
+  return data_[chat_id].chat.summary();
+}
+
+void ChatsDb::CreateChat(Id chat_id) {
+  std::unique_lock lk(m_);
+  if (data_.contains(chat_id)) {
+    return;
+  }
+  data_.emplace(chat_id, ChatEntry{});
+}
+
+void ChatsDb::AddMessage(Id chat_id, const messenger::Message& message) {
   std::shared_lock s_lk(m_);
   if (!data_.contains(chat_id)) {
     return;
@@ -71,7 +88,7 @@ ChatsDb::ChatResponce ChatsDb::LoadData() {
   std::for_each(std::make_move_iterator(data.begin()),
                 std::make_move_iterator(data.end()),
                 [&out](messenger::Chat&& c) {
-                  out.emplace(c.id(), ChatEntry{std::move(c)});
+                  out.emplace(c.summary().id(), ChatEntry{std::move(c)});
                 });
 
   google::protobuf::ShutdownProtobufLibrary();
