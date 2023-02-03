@@ -32,7 +32,7 @@ message LogInResponce {
 }
 
 message UserChatsRequest {
-  repeated ChatSummary chats = 1;
+  repeated uint64 chat_ids = 1;
 }
 
 message UserChats {
