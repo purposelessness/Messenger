@@ -7,16 +7,24 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "messenger.pb.h"
+
 class UsersDb {
   using Id = uint64_t;
 
  public:
-  std::optional<Id> GetChat(Id user_id, Id companion_id);
-  void AddChat(Id user_id, Id companion_id, Id chat_id);
+  explicit UsersDb(std::string filename = "users.data");
+
+  std::optional<messenger::UserSummary> GetSummary(Id user_id);
+  void AddChat(Id user_id, Id chat_id);
   void RemoveUser(Id user_id);
 
+  void LoadData();
+  void SaveData();
+
  private:
-  std::unordered_map<Id, std::unordered_map<Id, Id>> chat_data_;
+  std::string filename_;
+  std::unordered_map<Id, messenger::UserSummary> user_data_;
   mutable std::shared_mutex m_;
 };
 
