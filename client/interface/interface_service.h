@@ -8,7 +8,7 @@
 #include "../message_visitor.h"
 #include "../threadsafe/queue.h"
 
-class InterfaceService : public MessageVisitor {
+class InterfaceService : public IMessageVisitor {
   using Bus = Queue<std::unique_ptr<Message>>;
 
  public:
@@ -19,12 +19,17 @@ class InterfaceService : public MessageVisitor {
   void Process();
 
   void Quit();
+  void Signup();
   void Login();
+  void PrintChatsInfo();
   void EnterMessage();
+  void CreateChat();
 
   void Visit(const LoginMessage& message) override;
   void Visit(const ChatMessage& message) override;
   void Visit(const QuitMessage& message) override;
+  void Visit(const PrintChatsInfoMessage &message) override;
+  void Visit(const CreateChatMessage &message) override;
 
   void SetOutputBus(Bus* out_bus);
   Bus& GetBus();

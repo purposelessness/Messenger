@@ -4,8 +4,11 @@
 
 InterfaceService::InterfaceService()
     : command_map_({{'0', [this] { Quit(); }},
-                    {'1', [this] { Login(); }},
-                    {'2', [this] { EnterMessage(); }}}) {}
+                    {'1', [this] { Signup(); }},
+                    {'2', [this] { Login(); }},
+                    {'3', [this] { PrintChatsInfo(); }},
+                    {'4', [this] { EnterMessage(); }},
+                    {'5', [this] { CreateChat(); }}}) {}
 
 void InterfaceService::Run() {
   PrintInfo();
@@ -22,7 +25,8 @@ void InterfaceService::Run() {
 }
 
 void InterfaceService::PrintInfo() {
-  std::cout << "0: Quit\n1: Login\n2: enter message\n";
+  std::cout << "0: Quit\n1: Sign up\n2: Log in\n3: Display chats info\n"
+               "4: New message\n5: Create chat\n";
 }
 
 void InterfaceService::Process() {
@@ -41,6 +45,17 @@ void InterfaceService::Quit() {
   is_active_ = false;
 }
 
+void InterfaceService::Signup() {
+  std::string login;
+  std::string password;
+  std::cout << "Enter Login:\n";
+  std::cin >> login;
+  std::cout << "Enter password:\n";
+  std::cin >> password;
+  out_bus_->Push(std::make_unique<LoginMessage>(std::move(login),
+                                                std::move(password), true));
+}
+
 void InterfaceService::Login() {
   std::string login;
   std::string password;
@@ -52,11 +67,32 @@ void InterfaceService::Login() {
       std::make_unique<LoginMessage>(std::move(login), std::move(password)));
 }
 
+void InterfaceService::PrintChatsInfo() {
+  out_bus_->Push(std::make_unique<PrintChatsInfoMessage>());
+}
+
+void InterfaceService::CreateChat() {
+  std::cout << "Enter logins to include in chat:\n";
+  std::vector<std::string> logins;
+  std::string line;
+  std::cin.ignore();
+  std::getline(std::cin, line);
+  while (!line.empty()) {
+    logins.push_back(std::move(line));
+    std::getline(std::cin, line);
+  }
+  out_bus_->Push(std::make_unique<CreateChatMessage>(std::move(logins)));
+}
+
 void InterfaceService::EnterMessage() {
   std::string message;
+  uint64_t chat_id = 0;
   std::cout << "Enter message:\n";
-  std::cin >> message;
-  out_bus_->Push(std::make_unique<ChatMessage>(std::move(message)));
+  std::cin.ignore();
+  std::getline(std::cin, message);
+  std::cout << "Enter chat id:\n";
+  std::cin >> chat_id;
+  out_bus_->Push(std::make_unique<ChatMessage>(chat_id, std::move(message)));
 }
 
 void InterfaceService::Visit(const LoginMessage& message) {
@@ -77,3 +113,9 @@ void InterfaceService::SetOutputBus(Bus* out_bus) { out_bus_ = out_bus; }
 InterfaceService::Bus& InterfaceService::GetBus() { return bus_; }
 
 bool InterfaceService::IsActive() const { return is_active_; }
+
+void InterfaceService::Visit(
+    [[maybe_unused]] const PrintChatsInfoMessage& message) {}
+
+void InterfaceService::Visit(
+    [[maybe_unused]] const CreateChatMessage& message) {}
