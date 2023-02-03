@@ -51,7 +51,9 @@ class MessengerServiceImpl final : public Messenger::Service {
       return Status{grpc::UNAUTHENTICATED, std::to_string(db_response.status)};
     }
 
-    std::cout << "User added\n";
+    details_db_.AddId(request->login(), db_response.id);
+    details_db_.AddActive(db_response.id);
+    std::cout << "User added " << db_response.id << "\n";
     response->set_id(db_response.id);
     return Status::OK;
   }
@@ -87,23 +89,25 @@ class MessengerServiceImpl final : public Messenger::Service {
   Status OpenMessageStream(
       [[maybe_unused]] ServerContext* context,
       grpc::ServerReaderWriter<Message, Message>* stream) override {
-    std::cout << "Message stream opened.\n";
-    std::atomic<bool> open = true;
-
     Message msg;
-    stream->Read(&msg);
+    auto flag = stream->Read(&msg);
+    if (!flag) {
+      return Status::OK;
+    }
     uint64_t id = msg.sender();
     message_bus_.Insert(id, Queue<Message>());
+    std::cout << "Message stream opened to user " << id << ".\n";
 
-    auto write_thread =
-        std::jthread([stream, &bus = message_bus_, &open, id]() {
-          auto func = [stream, &open](auto& queue) {
-            while (open) {
+    auto write_thread = std::jthread(
+        [stream, &bus = message_bus_, id](const std::stop_token& token) {
+          auto func = [stream, &token](auto& queue) {
+            while (!token.stop_requested()) {
               std::optional<Message> msg = queue.TryPop();
               if (!msg.has_value()) {
                 std::this_thread::yield();
+              } else {
+                stream->Write(msg.value());
               }
-              stream->Write(msg.value());
             }
           };
           bus.ApplySoft(id, std::move(func));
@@ -119,17 +123,17 @@ class MessengerServiceImpl final : public Messenger::Service {
         std::cout << "Invalid chat!" << '\n';
         continue;
       }
-      const auto& kUdata = chat_sum.value().users();
+      const auto& k_udata = chat_sum.value().users();
       std::for_each(
-          kUdata.cbegin(), kUdata.cend(),
+          k_udata.cbegin(), k_udata.cend(),
           [&msg, &d_db = details_db_, &bus = message_bus_](uint64_t id) {
             if (d_db.IsActive(id)) {
               bus.ApplySoft(id, [&msg](auto& queue) { queue.Push(msg); });
             }
           });
     }
+    write_thread.request_stop();
 
-    open = false;
     message_bus_.Erase(id);
     std::cout << "Message stream closed.\n";
     return Status::OK;
@@ -148,9 +152,9 @@ class MessengerServiceImpl final : public Messenger::Service {
   }
 
   Status GetChats([[maybe_unused]] ServerContext* context,
-                  const messenger::UserChatsRequest* request,
-                  messenger::UserChats* response) override {
-    messenger::UserChats chats;
+                  const messenger::GetChatsRequest* request,
+                  messenger::GetChatsResponse* response) override {
+    messenger::GetChatsResponse chats;
     std::for_each(request->chat_ids().cbegin(), request->chat_ids().cend(),
                   [&chats, &c_db = chats_db_](uint64_t id) {
                     auto* new_summary = chats.add_chats();
