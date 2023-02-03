@@ -3,12 +3,14 @@
 
 #include "message.h"
 
-class MessageVisitor {
+class IMessageVisitor {
  public:
-  virtual ~MessageVisitor() = default;
+  virtual ~IMessageVisitor() = default;
   virtual void Visit(const LoginMessage& message) = 0;
   virtual void Visit(const ChatMessage& message) = 0;
   virtual void Visit(const QuitMessage& message) = 0;
+  virtual void Visit(const PrintChatsInfoMessage& message) = 0;
+  virtual void Visit(const CreateChatMessage& message) = 0;
 };
 
 #endif  // MESSENGER__MESSAGE_VISITOR_H_

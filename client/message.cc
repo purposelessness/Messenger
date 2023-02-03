@@ -4,13 +4,25 @@
 
 #include "message_visitor.h"
 
-void LoginMessage::Accept(MessageVisitor& visitor) { visitor.Visit(*this); }
+void LoginMessage::Accept(IMessageVisitor& visitor) { visitor.Visit(*this); }
 
-LoginMessage::LoginMessage(std::string login, std::string password)
-    : login(std::move(login)), password(std::move(password)) {}
+LoginMessage::LoginMessage(std::string login, std::string password, bool signup)
+    : login(std::move(login)), password(std::move(password)), signup(signup) {}
 
-void ChatMessage::Accept(MessageVisitor& visitor) { visitor.Visit(*this); }
+void ChatMessage::Accept(IMessageVisitor& visitor) { visitor.Visit(*this); }
 
-ChatMessage::ChatMessage(std::string data) : data(std::move(data)) {}
+ChatMessage::ChatMessage(uint64_t chat_id, std::string data)
+    : chat_id(chat_id), data(std::move(data)) {}
 
-void QuitMessage::Accept(MessageVisitor& visitor) { visitor.Visit(*this); }
+void QuitMessage::Accept(IMessageVisitor& visitor) { visitor.Visit(*this); }
+
+void PrintChatsInfoMessage::Accept(IMessageVisitor& visitor) {
+  visitor.Visit(*this);
+}
+
+CreateChatMessage::CreateChatMessage(std::vector<std::string> logins)
+    : logins(std::move(logins)) {}
+
+void CreateChatMessage::Accept(IMessageVisitor& visitor) {
+  visitor.Visit(*this);
+}

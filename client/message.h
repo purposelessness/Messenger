@@ -3,31 +3,45 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
-class MessageVisitor;
+class IMessageVisitor;
 
 struct Message {
   virtual ~Message() = default;
-  virtual void Accept(MessageVisitor& visitor) = 0;
+  virtual void Accept(IMessageVisitor& visitor) = 0;
 };
 
 struct LoginMessage : Message {
-  LoginMessage(std::string login, std::string password);
+  LoginMessage(std::string login, std::string password, bool signup = false);
 
-  void Accept(MessageVisitor& visitor) override;
+  void Accept(IMessageVisitor& visitor) override;
   std::string login;
   std::string password;
+  bool signup;
 };
 
 struct ChatMessage : Message {
-  explicit ChatMessage(std::string data);
+  ChatMessage(uint64_t chat_id, std::string data);
 
-  void Accept(MessageVisitor& visitor) override;
+  void Accept(IMessageVisitor& visitor) override;
+  uint64_t chat_id;
   std::string data;
 };
 
 struct QuitMessage : Message {
-  void Accept(MessageVisitor& visitor) override;
+  void Accept(IMessageVisitor& visitor) override;
+};
+
+struct PrintChatsInfoMessage : Message {
+  void Accept(IMessageVisitor& visitor) override;
+};
+
+struct CreateChatMessage : Message {
+  explicit CreateChatMessage(std::vector<std::string> logins);
+
+  void Accept(IMessageVisitor& visitor) override;
+  std::vector<std::string> logins;
 };
 
 #endif  // MESSENGER__MESSAGE_H_
