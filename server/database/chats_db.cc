@@ -109,6 +109,7 @@ ChatsDb::ChatResponce ChatsDb::LoadData() {
 ChatsDb::ChatResponce::Status ChatsDb::SaveData() {
   std::ofstream file(filename_, std::ios::trunc | std::ios::binary);
   if (!file.good()) {
+    std::cerr << "Chats db: cannot open file.\n";
     return ChatResponce::kFileNotFound;
   }
   messenger::ChatBook chat_book;
@@ -118,8 +119,11 @@ ChatsDb::ChatResponce::Status ChatsDb::SaveData() {
   });
 
   if (!chat_book.SerializeToOstream(&file)) {
+    std::cerr << "Chats db: cannot serialize data.\n";
     return ChatResponce::kParseError;
   }
+
+  std::cout << "Chats db: data is saved.\n";
 
   google::protobuf::ShutdownProtobufLibrary();
   return ChatResponce::kOk;

@@ -108,7 +108,7 @@ grpc::Status MessengerServiceImpl::OpenMessageStream(
     chats_db_.AddMessage(chat_id, msg);
     auto chat_sum = chats_db_.GetChatSummary(chat_id);
     if (!chat_sum.has_value()) {
-      std::cout << "Invalid chat!" << '\n';
+      std::cerr << "Invalid chat!" << '\n';
       continue;
     }
     const auto& k_udata = chat_sum.value().users();
@@ -190,10 +190,11 @@ grpc::Status MessengerServiceImpl::CreateChat(
     messenger::CreateChatResponse* responce) {
   std::unordered_set<uint64_t> ids(request->users().cbegin(),
                                    request->users().cend());
-  uint64_t id = chats_db_.CreateChat(ids);
-  std::for_each(
-      ids.cbegin(), ids.cend(),
-      [c_id = id, &u_db = users_db_](uint64_t id) { u_db.AddChat(id, c_id); });
-  responce->set_chat_id(id);
+  uint64_t c_id = chats_db_.CreateChat(ids);
+  std::for_each(ids.cbegin(), ids.cend(),
+                [c_id, &u_db = users_db_](uint64_t id) {
+                  u_db.AddChat(id, c_id);
+                });
+  responce->set_chat_id(c_id);
   return Status::OK;
 }

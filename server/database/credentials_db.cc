@@ -108,6 +108,7 @@ void CredentialsDb::PrintData() const {
 CredentialsDb::CredentialsResponce::Status CredentialsDb::SaveData() const {
   std::ofstream file(filename_, std::ios::trunc | std::ios::binary);
   if (!file.good()) {
+    std::cerr << "Credentials db: file not found.\n";
     return CredentialsResponce::kFileNotFound;
   }
   messenger::CredentialBook credential_book;
@@ -118,9 +119,11 @@ CredentialsDb::CredentialsResponce::Status CredentialsDb::SaveData() const {
                 });
 
   if (!credential_book.SerializeToOstream(&file)) {
+    std::cerr << "Credentials db: cannot serialize data.\n";
     return CredentialsResponce::kParseError;
   }
 
   google::protobuf::ShutdownProtobufLibrary();
+  std::cout << "Credentials db: data is saved.\n";
   return CredentialsResponce::kOk;
 }

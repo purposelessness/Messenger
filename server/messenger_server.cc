@@ -22,7 +22,6 @@ void RunServer() {
   builder.RegisterService(&service);
 
   service.LoadData();
-  std::cout << "Data loaded\n";
 
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   std::cout << "Server listening on " << server_address << '\n';
