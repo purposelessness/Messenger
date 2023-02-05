@@ -44,7 +44,7 @@ target_link_libraries(ms_grpc_proto
   ${_PROTOBUF_LIBPROTOBUF})
 
 set(server_dir "server/")
-set(server_src messenger_server.cc database/chats_db.cc database/credentials_db.cc database/details_db.cc database/users_db.cc)
+set(server_src messenger_server.cc server_implementation.cc database/chats_db.cc database/credentials_db.cc database/details_db.cc database/users_db.cc)
 list(APPEND server_list ${server_src})
 list(TRANSFORM server_list PREPEND ${server_dir})
 add_executable(server ${server_list})
