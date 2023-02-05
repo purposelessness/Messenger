@@ -16,6 +16,7 @@ std::optional<messenger::UserSummary> UsersDb::GetSummary(Id user_id) {
 
 void UsersDb::AddChat(Id user_id, Id chat_id) {
   std::scoped_lock lk(m_);
+  user_data_[user_id].set_id(user_id);
   user_data_[user_id].add_chat_ids(chat_id);
 }
 
@@ -51,18 +52,23 @@ void UsersDb::LoadData() {
 void UsersDb::SaveData() {
   std::ofstream file(filename_, std::ios::trunc | std::ios::binary);
   if (!file.good()) {
+    std::cerr << "Users db: Cannot open file.\n";
     return;
   }
+
   messenger::UserSummaryBook user_book;
-  std::for_each(user_data_.begin(), user_data_.end(), [&user_book](const auto& pair) {
-    auto* entry = user_book.add_data();
-    *entry = pair.second;
-  });
+  std::for_each(user_data_.begin(), user_data_.end(),
+                [&user_book](const auto& pair) {
+                  auto* entry = user_book.add_data();
+                  *entry = pair.second;
+                });
 
   if (!user_book.SerializeToOstream(&file)) {
+    std::cerr << "Users db: Cannot serialize data.\n";
     return;
   }
+
+  std::cout << "Users db: data is saved.\n";
 
   google::protobuf::ShutdownProtobufLibrary();
 }
-
