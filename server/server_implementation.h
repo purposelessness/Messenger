@@ -27,7 +27,10 @@ class MessengerServiceImpl final : public messenger::Messenger::Service {
   using Message = messenger::Message;
 
  public:
-  MessengerServiceImpl();
+  MessengerServiceImpl() = default;
+  ~MessengerServiceImpl() override;
+
+  void LoadData();
 
   Status SignUp([[maybe_unused]] ServerContext* context,
                 const messenger::LogInRequest* request,

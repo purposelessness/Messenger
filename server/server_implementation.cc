@@ -1,15 +1,27 @@
 #include "server_implementation.h"
 
-MessengerServiceImpl::MessengerServiceImpl() {
+MessengerServiceImpl::~MessengerServiceImpl() {
+  credentials_db_.SaveData();
+  users_db_.SaveData();
+  chats_db_.SaveData();
+  std::cout << "Server shutting down\n";
+}
+
+void MessengerServiceImpl::LoadData() {
+  std::cout << "Starting server\n";
   auto credentials = credentials_db_.LoadData();
+  std::cout << "Credentials loaded\n";
   if (credentials.status == CredentialsDb::CredentialsResponce::kOk) {
     std::for_each(credentials.data->cbegin(), credentials.data->cend(),
                   [&d_db = details_db_](const auto& pair) {
                     d_db.AddId(pair.second.login(), pair.second.id());
                   });
   }
+  std::cout << "Details loaded\n";
   chats_db_.LoadData();
+  std::cout << "Chats loaded\n";
   users_db_.LoadData();
+  std::cout << "Users loaded\n";
 }
 
 grpc::Status MessengerServiceImpl::SignUp(
