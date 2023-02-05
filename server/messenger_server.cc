@@ -124,13 +124,14 @@ class MessengerServiceImpl final : public Messenger::Service {
         continue;
       }
       const auto& k_udata = chat_sum.value().users();
-      std::for_each(
-          k_udata.cbegin(), k_udata.cend(),
-          [&msg, &d_db = details_db_, &bus = message_bus_](uint64_t id) {
-            if (d_db.IsActive(id)) {
-              bus.ApplySoft(id, [&msg](auto& queue) { queue.Push(msg); });
-            }
-          });
+      std::for_each(k_udata.cbegin(), k_udata.cend(),
+                    [&msg, &d_db = details_db_, &bus = message_bus_,
+                     sender = msg.sender()](uint64_t id) {
+                      if (d_db.IsActive(id) && id != sender) {
+                        bus.ApplySoft(id,
+                                      [&msg](auto& queue) { queue.Push(msg); });
+                      }
+                    });
     }
     write_thread.request_stop();
 
