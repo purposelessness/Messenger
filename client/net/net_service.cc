@@ -33,7 +33,12 @@ void NetService::Run() {
 void NetService::ReadMessages() {
   messenger::Message msg;
   while (stream_->Read(&msg)) {
-    std::cout << "New message!\nSender: " << msg.sender()
+    auto login = GetUserLogin(msg.sender());
+    if (!login.has_value()) {
+      std::cout << "[Warning] Cannot get login\n";
+      login = std::to_string(msg.sender());
+    }
+    std::cout << "New message!\nSender: " << login.value()
               << "\nChat id: " << msg.chat_id() << "\nData: " << msg.data()
               << '\n';
     if (!chats_.contains(msg.chat_id())) {
@@ -169,12 +174,22 @@ void NetService::Visit(const CreateChatMessage& message) {
 void NetService::PrintChatInfo(const std::pair<Id, messenger::ChatSummary>& p) {
   const auto& sum = p.second;
   std::cout << "Chat " << sum.id() << "\nUsers: ";
-  std::for_each(sum.users().cbegin(), sum.users().cend(), [this](Id id) {
-    auto login = GetUserLogin(id);
-    if (login.has_value()) {
-      std::cout << login.value() << ", ";
+  for (auto it = sum.users().cbegin(); it != sum.users().cend(); ++it) {
+    auto login = GetUserLogin(*it);
+    if (!login.has_value()) {
+      continue;
     }
-  });
+    if (it != sum.users().cbegin()) {
+      std::cout << ", ";
+    }
+    std::cout << login.value();
+  }
+  //  std::for_each(sum.users().cbegin(), sum.users().cend(), [this](Id id) {
+  //    auto login = GetUserLogin(id);
+  //    if (login.has_value()) {
+  //      std::cout << login.value() << ", ";
+  //    }
+  //  });
   std::cout << '\n';
 }
 

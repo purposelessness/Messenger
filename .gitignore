@@ -2,5 +2,6 @@ cmake-build-debug/
 .idea/
 .cache/
 cmake_build/
+build/
 compile_commands.json
 tests/cmake_build
